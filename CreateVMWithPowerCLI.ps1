@@ -5,8 +5,7 @@
 )
 $credentials=Get-Credential
 #Connect ESXiHost
-Connect-VIServer -Verbose:$true -Server 192.168.10.16 -Credential $credentials
-#Connect-VIServer -Verbose:$true -Server 192.168.10.16 -User root -Password Katipunan@1234 
+Connect-VIServer -Verbose:$true -Server 192.168.10.16 -Credential $credentials 
 
 #Get all iso's in datastore...................... Need to change the filter
 $isoWin = dir -Recurse -Path vmstores:\ -Include Win* | select name, Datastorefullpath
