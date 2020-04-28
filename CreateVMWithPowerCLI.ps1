@@ -5,21 +5,28 @@
     [Parameter(Mandatory = $true)]
     [String]$VMNewName,
     [Parameter(Mandatory = $true)]
-    [String]$DiskVol,
+    [int]$DiskVol,
     [Parameter(Mandatory = $true)]
-    [String]$MemoryAm,
+    [int]$MemoryAm,
     [Parameter(Mandatory = $true)]
-    [String]$CpuNumbers
+    [int]$CpuNumbers
 )
 $credentials=Get-Credential
 #Connect ESXiHost
 Connect-VIServer -verbose:$false -Server $EsxiHost -Credential $credentials 
 
-#Get all iso's in datastore...................... Need to change the filter
+#Check if the VMNewName exist already
+while(Get-VM | Where-Object {$_.Name -eq $VMNewName})
+{
+    Write-Warning "Duplicated name found"
+    $VMNewName = Read-Host "Write a new name for VM"
+}
+
+
 #How to get the path for datastore? run - Get-Datastore NameOfDataStore | Select-Object Select-Object DatastoreBrowserPath -  you will find the dat
 echo "We looking for the iso's, this operation may take a while...."
 $isoWin = dir -Path vmstore:ha-datacenter\datastore1\ISO -Include "*iso" -Recurse | select name, Datastorefullpath | Out-GridView -OutputMode Multiple
-echo "You have selected $isoWin.name"
+Write-Host "You have selected '$($isoWin."name")'"
 
 
 #Create a new VM.
@@ -36,14 +43,17 @@ $VM = Get-VM $VMNewName
 #configure the CD and attach it to vm
 if(Get-CDDrive -vm $VMNewName | set-CDDrive -IsoPath $isoWin.DatastoreFullPath -Confirm:$false -StartConnected:$true)
 {
-    echo "The CDDrive $isoWin. was attached succesfully"
+    echo "The CDDrive '$($isoWin."name")' was attached succesfully"
 }
 else{
-    echo "Unable to attached $isoWin.name"
+    echo "Unable to attached $($isoWin."name")"
 }
 
 #Change the network adapter to vmxnet3.
-$VM | Get-NetworkAdapter | Set-NetworkAdapter -type "vmxnet3" -NetworkName "VM Network" -StartConnected:$true -Confirm: $false
+if($VM | Get-NetworkAdapter | Set-NetworkAdapter -type "vmxnet3" -NetworkName "VM Network" -StartConnected:$true -Confirm: $false)
+{
+    echo "The Network adapter of $VMNewName has been changed to vmxnet3"
+}
 
 
 #Reconfigure cpuHOTADD and memoryHotADD to enabled
@@ -61,7 +71,8 @@ Start-Sleep -Seconds 1.5
 
 #PowerOn The VM
 echo "Powering up the VM $VMNewName"
-Start-VM $VMNewName -Verbose:$false
+Start-VM $VMNewName -Verbose:$false > $null
 
 #disconnect from ESXI
+echo "Disconnecting from $EsxiHost"
 Disconnect-VIServer -server $EsxiHost -Confirm:$false -Force
