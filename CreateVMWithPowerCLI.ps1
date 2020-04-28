@@ -64,4 +64,4 @@ echo "Powering up the VM $VMNewName"
 Start-VM $VMNewName -Verbose:$false
 
 #disconnect from ESXI
-Disconnect-VIServer -server 192.168.10.16 -Confirm:$false -Force
+Disconnect-VIServer -server $EsxiHost -Confirm:$false -Force
