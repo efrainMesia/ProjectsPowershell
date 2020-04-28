@@ -9,7 +9,7 @@ Connect-VIServer -Verbose:$true -Server 192.168.10.16 -Credential $credentials
 
 #Get all iso's in datastore...................... Need to change the filter
 #How to get the path for datastore? run - Get-Datastore NameOfDataStore | Select-Object Select-Object DatastoreBrowserPath -  you will find the dat
-$isoWin = dir -Recurse -Path vmstore:ha-datacenter\datastore1 -Include *iso | select name, Datastorefullpath
+$isoWin = dir -Path vmstore:ha-datacenter\datastore1\ISO -Include "*iso", "win*" -Recurse | select name, Datastorefullpath
 
 
 #Create a new VM.
