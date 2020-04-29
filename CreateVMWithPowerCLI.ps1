@@ -25,7 +25,7 @@ while(Get-VM | Where-Object {$_.Name -eq $VMNewName})
 
 #How to get the path for datastore? run - Get-Datastore NameOfDataStore | Select-Object Select-Object DatastoreBrowserPath -  you will find the dat
 echo "We looking for the iso's, this operation may take a while...."
-$isoWin = dir -Path vmstore:ha-datacenter\datastore1\ISO -Include "*iso" -Recurse | select name, Datastorefullpath | Out-GridView -OutputMode Multiple
+$isoWin = dir -Path vmstore:ha-datacenter\datastore1\ISO -Include "*iso" -Recurse | select name, Datastorefullpath | Out-GridView -OutputMode single -Title 'Pick one ISO image you want to install in your VM'
 Write-Host "You have selected '$($isoWin."name")'"
 
 
