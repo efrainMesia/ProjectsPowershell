@@ -13,10 +13,6 @@
 )
 $credentials=Get-Credential
 
-#Creates guestID variable
-#https://vdc-download.vmware.com/vmwb-repository/dcr-public/da47f910-60ac-438b-8b9b-6122f4d14524/16b7274a-bf8b-4b4c-a05e-746f2aa93c8c/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html
-$guestID
-
 #Connect ESXiHost
 Connect-VIServer -verbose:$false -Server $EsxiHost -Credential $credentials 
 
@@ -47,6 +43,7 @@ if(New-VM -name $VMNewName -ResourcePool $EsxiHost -DiskGB $DiskVol -MemoryGB $M
 $VM = Get-VM $VMNewName
 
 
+#h1ttps://vdc-download.vmware.com/vmwb-repository/dcr-public/da47f910-60ac-438b-8b9b-6122f4d14524/16b7274a-bf8b-4b4c-a05e-746f2aa93c8c/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html
 #The switch checks which type of guestID according to the variable $isoWin
 switch -Wildcard ($isoWin)
 {
