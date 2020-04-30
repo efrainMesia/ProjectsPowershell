@@ -29,10 +29,6 @@ echo "We looking for the iso's, this operation may take a while...."
 $isoWin = dir -Path vmstore:ha-datacenter\datastore1\ISO -Include "*iso" -Recurse | select name, Datastorefullpath | Out-GridView -OutputMode single -Title 'Pick one ISO image you want to install in your VM'
 Write-output "You have selected '$($isoWin."name")'"
 
-#GuestID must be configured to an specific type of windows otherwise there will be a problem while you start the vm.
-
-
-
 
 #Create a new VM.
 echo "We are creating the VM, please wait...."
@@ -43,7 +39,8 @@ if(New-VM -name $VMNewName -ResourcePool $EsxiHost -DiskGB $DiskVol -MemoryGB $M
 $VM = Get-VM $VMNewName
 
 
-#h1ttps://vdc-download.vmware.com/vmwb-repository/dcr-public/da47f910-60ac-438b-8b9b-6122f4d14524/16b7274a-bf8b-4b4c-a05e-746f2aa93c8c/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html
+#https://vdc-download.vmware.com/vmwb-repository/dcr-public/da47f910-60ac-438b-8b9b-6122f4d14524/16b7274a-bf8b-4b4c-a05e-746f2aa93c8c/doc/vim.vm.GuestOsDescriptor.GuestOsIdentifier.html
+#GuestID must be configured to an specific type of OS otherwise there will be a problem while you start the vm.
 #The switch checks which type of guestID according to the variable $isoWin
 switch -Wildcard ($isoWin)
 {
