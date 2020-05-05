@@ -16,8 +16,6 @@ foreach ($line in $serversFile)
             $SVDeployed = Get-Content $file | %{$_.Split(' ')[11]}
             $output += $line|select-Object *,@{n='Date_SystemVersion';e={"$SVDate"}},
                                              @{n='SystemVersionDeployed';e={"$SVDeployed"}} 
-            #$line.Date_SystemVersion = $SVDate
-            #$line.SystemVersionDeployed = $SVDeployed
         }
         else{
             $output += $line|select-Object *,@{n='Date_SystemVersion';e={"File not exist"}},
