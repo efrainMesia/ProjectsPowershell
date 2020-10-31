@@ -20,6 +20,7 @@ try {
             $registry = $regedit_path + $port.deviceID
             Copy-Item -Path $regedit_source -Destination $registry
             Set-ItemProperty -Path $registry -Name SerialLine -Value $port.deviceID
+            Set-ItemProperty -Path $registry -Name SerialSpeed -Value 115200
         }
     }
 }
