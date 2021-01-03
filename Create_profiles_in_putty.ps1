@@ -2,10 +2,10 @@ $ComPorts_OK = Get-WmiObject -query "SELECT * FROM Win32_PnPEntity" | ForEach-Ob
 $regedit_path = "HKCU:\SOFTWARE\SimonTatham\PuTTY\Sessions\"
 $regedit_source = "HKCU:\SOFTWARE\SimonTatham\PuTTY\Sessions\Default%20Settings"
 $location = Get-location
-$IP = '192.168.1.1'
+
 try {
 	#Deleting old profiles of COM ports
-    set-location -path $regedit_path
+	set-location -path $regedit_path
 	$ComPorts_notworking= Get-ChildItem | Where-Object {$_.Name -match "COM*"} | select PSChildName
 	set-location -path $location
 	foreach ($port in $ComPorts_notworking.PSChildName)
@@ -15,23 +15,23 @@ try {
 	}
 	
 	#adding SSH Connection
-	$ComPorts_OK +=$IP
+	$ComPorts_OK +='192.168.137.5'
 	
 	#Import default setting
-    if(-Not(Test-Path $regedit_source))
-    {
+	if(-Not(Test-Path $regedit_source))
+    	{
 		Write-Host "$regedit_source not found, importing registry"
-        regedit.exe /s /C '.\default_settings.reg'
+        	regedit.exe /s /C '.\default_settings.reg'
 		start-sleep -s 3
-    }
+   	}
 	
 	#Configure ports 
-    foreach ($port in $ComPorts_OK)
-    {
-        $registry = $regedit_path + $port
+    	foreach ($port in $ComPorts_OK)
+   	{
+        	$registry = $regedit_path + $port
 		Write-Host "Setting the port: $port"
 		Copy-Item -Path $regedit_source -Destination $registry
-		if($port -like $IP)
+		if($port -like "192.168.137.5")
 		{
 			Set-ItemProperty -Path $registry -Name HostName -Value $port	
 		}
@@ -40,9 +40,9 @@ try {
 			Set-ItemProperty -Path $registry -Name SerialLine -Value $port	
 			Set-ItemProperty -Path $registry -Name SerialSpeed -Value 115200
 		}
-		Write-Host "$port configured successfully"
+		Write-Host "Profile $port configured successfully"
 	}
 }
 catch{
-    Write-Host "Something went wrong"
+    	Write-Host "Something went wrong"
 }
