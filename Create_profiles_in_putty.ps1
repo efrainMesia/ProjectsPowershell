@@ -2,7 +2,7 @@ $ComPorts_OK = Get-WmiObject -query "SELECT * FROM Win32_PnPEntity" | ForEach-Ob
 $regedit_path = "HKCU:\SOFTWARE\SimonTatham\PuTTY\Sessions\"
 $regedit_source = "HKCU:\SOFTWARE\SimonTatham\PuTTY\Sessions\Default%20Settings"
 $location = Get-location
-
+$IP = '192.168.1.1'
 try {
 	#Deleting old profiles of COM ports
     set-location -path $regedit_path
@@ -15,7 +15,7 @@ try {
 	}
 	
 	#adding SSH Connection
-	$ComPorts_OK +='192.168.137.5'
+	$ComPorts_OK +=$IP
 	
 	#Import default setting
     if(-Not(Test-Path $regedit_source))
@@ -31,7 +31,7 @@ try {
         $registry = $regedit_path + $port
 		Write-Host "Setting the port: $port"
 		Copy-Item -Path $regedit_source -Destination $registry
-		if($port -like "192.168.137.5")
+		if($port -like $IP)
 		{
 			Set-ItemProperty -Path $registry -Name HostName -Value $port	
 		}
