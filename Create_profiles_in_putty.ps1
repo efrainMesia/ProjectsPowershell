@@ -1,33 +1,32 @@
-$ComPorts_OK = Get-WmiObject -query "SELECT * FROM Win32_PnPEntity" | 
-                ForEach-Object{
-                    if (($_.Name -match "COM\d+") -and ($_.Name -notlike "*Intel(R)*") -and ($_.Status -like "OK")) 
-                    {
-                        $Matches[0] 
-                    } 
-                }
+#Creating List of working comports
+$comports_working = New-Object -TypeName "System.Collections.ArrayList"
+$comports_working = [System.Collections.ArrayList]@()
+Get-WmiObject -query "SELECT * FROM Win32_PnPEntity" | 
+		ForEach-Object{
+			if (($_.Name -match "COM\d+") -and ($_.Name -notlike "*Intel(R)*") -and ($_.Status -like "OK")) 
+			{
+				$comports_working+=$Matches[0]
+			} 
+		}
 $regedit_path = "HKCU:\SOFTWARE\SimonTatham\PuTTY\Sessions\"
 $regedit_source = "HKCU:\SOFTWARE\SimonTatham\PuTTY\Sessions\Default%20Settings"
-$location = Get-location
-
-
-#Get the profiles that start with COM and IP that ends with 5
-set-location -path $regedit_path
-$profiles_configured= Get-ChildItem |
-                        Where-Object {($_.Name -match "COM*" -or $_.Name -match "\d.\d.\d.1")} |
-                        select PSChildName
-set-location -path $location
 
 #adding SSH Connection
-$ComPorts_OK +='192.168.1.1'
+$comports_working +='192.168.1.1'
+
+#Get the profiles that start with COM and IP that ends with 5
+$profiles_configured= Get-ChildItem $regedit_path|
+                        Where-Object {($_.Name -match "COM*" -or $_.Name -match "\d.\d.\d.1")} |
+                        select PSChildName
 
 #if there is any profile configured we do the compare
 if($profiles_configured)
 {
-    $ComPorts_toconfigure = Compare-Object -ReferenceObject $ComPorts_OK -DifferenceObject  $profiles_configured.PSChildName -PassThru 
+    $ComPorts_toconfigure = Compare-Object -ReferenceObject $comports_working -DifferenceObject  $profiles_configured.PSChildName -PassThru 
 }
 else #else 
 {
-    $ComPorts_toconfigure = $ComPorts_OK
+    $ComPorts_toconfigure = $comports_working
 }
 
 
@@ -59,7 +58,6 @@ foreach ($port in $ComPorts_toconfigure)
     }
     if($port -like "192.168.1.1")
     {
-        #Copy-Item -Path $regedit_source -Destination $registry
         Set-ItemProperty -Path $registry -Name HostName -Value ("root@"+$port)
         Set-ItemProperty -Path $registry -Name Protocol -Value "ssh"
         Set-ItemProperty -Path $registry -Name PortNumber -Value 22
@@ -67,7 +65,6 @@ foreach ($port in $ComPorts_toconfigure)
     }
     else
     {
-        #Copy-Item -Path $regedit_source -Destination $registry
         Set-ItemProperty -Path $registry -Name SerialLine -Value $port  
         Set-ItemProperty -Path $registry -Name SerialSpeed -Value 115200
         Write-Host "Profile $port configured successfully"
